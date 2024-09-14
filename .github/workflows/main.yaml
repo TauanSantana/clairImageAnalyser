@@ -94,13 +94,14 @@ jobs:
       # Executa o clair-scanner (evitando o máximo de bash)
       - name: Run Clair Scanner
         run: |
+          CLAIR_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' clair)
           docker pull ubuntu:21.10
           docker run \
             --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
             --network clair-network \
             clair-scanner \
-            /bin/sh -c 'until curl -s http://clair:6060; do sleep 1; done && ./clair-scanner --ip $HOSTNAME ubuntu:21.10'
+            /bin/sh -c 'until curl -s http://clair:6060; do sleep 1; done && ./clair-scanner --ip $CLAIR_IP ubuntu:21.10'
 
       
 
