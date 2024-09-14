@@ -57,5 +57,6 @@ jobs:
 
       - name: Listar diretório
         run: |
+          sudo chmod -R 777 ${GITHUB_WORKSPACE}/clairdb
           cd ${GITHUB_WORKSPACE}/clairdb
           ls
