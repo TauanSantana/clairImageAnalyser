@@ -31,7 +31,7 @@ jobs:
 
       - name: setup database
         shell: bash
-        run: docker run -v -v clair-db-volume:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
+        run: docker run -v clair-db-volume:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
 
       - name: overwrite permission
         run: |
