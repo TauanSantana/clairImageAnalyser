@@ -106,7 +106,7 @@ jobs:
           docker run \
             --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            --network clair-network
+            --network clair-network \
             --link clair:clair \
             clair-scanner \
             /bin/sh -c 'until curl -s http://clair:6060; do sleep 1; done && ./clair-scanner --ip 127.0.0.1 ubuntu:21.10'
