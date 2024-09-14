@@ -15,11 +15,21 @@ jobs:
           mkdir ${GITHUB_WORKSPACE}/clairdb
           sudo chmod -R 777 ${GITHUB_WORKSPACE}/clairdb
 
+      - name: Calculate Volume Hash
+        id: volume_hash
+        run: |
+          if [ -d "/tmp/clair-db-volume" ]; then
+            VOLUME_HASH=$(find /tmp/clair-db-volume -type f -exec sha256sum {} + | sha256sum | awk '{ print $1 }')
+          else
+            VOLUME_HASH="empty"
+          fi
+          echo "VOLUME_HASH=${VOLUME_HASH}" >> $GITHUB_ENV
+
       - name: set cache DB
         uses: actions/cache@v3
         with:
           path: /tmp/clair-db-volume
-          key: clair-db
+          key: clair-db-cache-${{ runner.os }}-${{ env.VOLUME_HASH }}
           restore-keys: clair-db
     
     
