@@ -103,7 +103,9 @@ jobs:
           CLAIR_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' clair)
           docker pull ubuntu:21.10
           while ! curl -q http://clair:6060 > /dev/null 2>&1; do
-            sleep 1
+            echo "sleeping.."
+            sleep 5
+            docker logs clair
           done
           docker run \
             --rm \
