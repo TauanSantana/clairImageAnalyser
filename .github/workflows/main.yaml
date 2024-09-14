@@ -7,6 +7,9 @@ jobs:
   createClairCache:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v4
+
       - name: set cache DB
         uses: actions/cache@v3
         with:
