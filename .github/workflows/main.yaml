@@ -25,6 +25,11 @@ jobs:
         shell: bash
         run: docker run -v ./clairdb:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
 
+      - name: Listar diretório
+        run: |
+          cd./clairdb
+          ls
+
       - name: Wait for database
         run: |
           sleep 15
@@ -46,6 +51,7 @@ jobs:
         run: |
           docker logs clair
 
-      - name: Docker logs
+      - name: Listar diretório
         run: |
-          ls ./clairdb
+          cd./clairdb
+          ls
