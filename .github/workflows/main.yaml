@@ -12,22 +12,22 @@ jobs:
         
       - name: Docker logs
         run: |
-          mkdir ./clairdb
-          sudo chmod -R 777 ./clairdb
+          mkdir ${GITHUB_WORKSPACE}/clairdb
+          sudo chmod -R 777 ${GITHUB_WORKSPACE}/clairdb
 
       - name: set cache DB
         uses: actions/cache@v3
         with:
-          path: ./clairdb
+          path: ${GITHUB_WORKSPACE}/clairdb
           key: clair-db
 
       - name: setup database
         shell: bash
-        run: docker run -v ./clairdb:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
+        run: docker run -v ${GITHUB_WORKSPACE}/clairdb:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
 
       - name: Listar diretório
         run: |
-          cd ./clairdb
+          cd ${GITHUB_WORKSPACE}/clairdb
           ls
 
       - name: Wait for database
@@ -53,5 +53,5 @@ jobs:
 
       - name: Listar diretório
         run: |
-          cd ./clairdb
+          cd ${GITHUB_WORKSPACE}/clairdb
           ls
