@@ -13,7 +13,7 @@ jobs:
       - name: Set permission
         run: |
           mkdir ${GITHUB_WORKSPACE}/clairdb
-          sudo chmod -R 777 {GITHUB_WORKSPACE}/clairdb/
+          sudo chmod -R 777 {GITHUB_WORKSPACE}/clairdb
 
       - name: set cache DB
         uses: actions/cache@v3
@@ -27,7 +27,7 @@ jobs:
 
       - name: overwrite permission
         run: |
-          sudo chmod -R 777 {GITHUB_WORKSPACE}/clairdb/
+          sudo chmod -R 777 {GITHUB_WORKSPACE}/clairdb
 
       - name: Listar diretório
         run: |
