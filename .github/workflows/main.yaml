@@ -18,7 +18,7 @@ jobs:
       - name: set cache DB
         uses: actions/cache@v3
         with:
-          path: clairdb
+          path: ${GITHUB_WORKSPACE}/clairdb
           key: clair-db
 
       - name: setup database
@@ -54,9 +54,3 @@ jobs:
       - name: Docker logs
         run: |
           docker logs clair
-
-      - name: Listar diretório
-        run: |
-          sudo chmod -R 777 clairdb
-          cd clairdb
-          ls
