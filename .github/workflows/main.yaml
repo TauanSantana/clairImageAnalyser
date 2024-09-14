@@ -1,0 +1,36 @@
+name: Teste Clair
+
+on:
+  workflow_dispatch:
+
+jobs:
+  createClairCache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set cache DB
+        uses: actions/cache@v3
+        with:
+          path: ./clairdb
+          key: clair-db
+
+      - name: setup database
+        shell: bash
+        run: docker run -v ./clairdb:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:latest
+
+      - name: Wait for database
+        run: |
+          sleep 15
+
+      - name: Run Clair
+        shell: bash  
+        run: |  
+          docker run -p 6060:6060 --link db:postgres -d --name clair arminc/clair-local-scan:latest
+
+      - name: Checking
+        shell: bash
+        run: |
+          ./check.sh
+
+      - name: Docker logs
+        run: |
+          docker logs clair
