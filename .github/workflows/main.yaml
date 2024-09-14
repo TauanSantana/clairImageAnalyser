@@ -18,12 +18,20 @@ jobs:
       - name: set cache DB
         uses: actions/cache@v3
         with:
-          path: ${GITHUB_WORKSPACE}/clairdb/
+          path: /tmp/clair-db-volume
           key: clair-db
+          restore-keys: clair-db
+          
+      # Configura o Docker e monta o volume
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Create Clair DB Volume
+        run: docker volume create --name clair-db-volume -o type=none -o device=/tmp/clair-db-volume -o o=bind
 
       - name: setup database
         shell: bash
-        run: docker run -v ${GITHUB_WORKSPACE}/clairdb:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
+        run: docker run -v -v clair-db-volume:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
 
       - name: overwrite permission
         run: |
