@@ -30,7 +30,7 @@ jobs:
         with:
           path: /tmp/clair-db-volume
           key: clair-db-cache-${{ runner.os }}-${{ env.VOLUME_HASH }}
-          restore-keys: clair-db
+          restore-keys: clair-db-cache-${{ runner.os }}-${{ env.VOLUME_HASH }}
     
     
           # Cria o diretório para o volume
@@ -44,9 +44,13 @@ jobs:
       - name: Create Clair DB Volume
         run: docker volume create --name clair-db-volume -o type=none -o device=/tmp/clair-db-volume -o o=bind
 
+      # Cria uma rede Docker para os containers se comunicarem
+      - name: Create Docker Network
+        run: docker network create clair-network
+
       - name: setup database
         shell: bash
-        run: docker run -v clair-db-volume:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
+        run: docker run --network clair-network -v clair-db-volume:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
 
       - name: overwrite permission
         run: |
@@ -64,7 +68,7 @@ jobs:
       - name: Run Clair
         shell: bash  
         run: |  
-          docker run -p 6060:6060 --link db:postgres -d --name clair arminc/clair-local-scan:latest
+          docker run --network clair-network -p 6060:6060 --link db:postgres -d --name clair arminc/clair-local-scan:latest
 
       - name: Give permission
         run: chmod +x .github/workflows/clair-check.sh
@@ -74,9 +78,29 @@ jobs:
         run: |
           .github/workflows/clair-check.sh
 
-      - name: Docker logs
+      # Cria um Dockerfile para o clair-scanner
+      - name: Create Clair Scanner Dockerfile
         run: |
-          docker logs clair
+          cat <<EOF > Dockerfile
+          FROM amazonlinux:2
+          RUN curl -L https://github.com/arminc/clair-scanner/releases/download/v12/clair-scanner_linux_amd64 -o clair-scanner && \
+              chmod +x ./clair-scanner
+          EOF
+
+
+      # Executa o clair-scanner (evitando o máximo de bash)
+      - name: Run Clair Scanner
+        run: |
+          docker run \
+            --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            --network clair-network \
+            clair-scanner \
+            /bin/sh -c 'until curl -s http://clair:6060; do sleep 1; done && ./clair-scanner --ip $HOSTNAME ubuntu:21.10'
+
+      
+
+
 
       # Ajusta as permissões do diretório
       - name: Fix Permissions
