@@ -87,6 +87,9 @@ jobs:
               chmod +x ./clair-scanner
           EOF
 
+      # Constrói a imagem do clair-scanner
+      - name: Build Clair Scanner Image
+        run: docker build -t clair-scanner .
 
       # Executa o clair-scanner (evitando o máximo de bash)
       - name: Run Clair Scanner
