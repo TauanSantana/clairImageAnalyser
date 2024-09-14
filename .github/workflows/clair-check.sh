@@ -41,7 +41,7 @@ while true; do
         break
     fi
 
-    docker logs -n 1 "${CONTAINER}"
+    docker logs "${CONTAINER}"
 
     # Aguarda 10 segundos antes da próxima iteração
     sleep 10

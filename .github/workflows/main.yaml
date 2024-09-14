@@ -78,6 +78,12 @@ jobs:
         run: |
           .github/workflows/clair-check.sh
 
+      - name: Checking
+        shell: bash
+        run: |
+            docker logs clair
+            docker ps
+
       # Cria um Dockerfile para o clair-scanner
       - name: Create Clair Scanner Dockerfile
         run: |
