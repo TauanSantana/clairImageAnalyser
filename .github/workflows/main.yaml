@@ -21,6 +21,11 @@ jobs:
           path: /tmp/clair-db-volume
           key: clair-db
           restore-keys: clair-db
+    
+    
+          # Cria o diretório para o volume
+      - name: Create Clair DB Directory
+        run: mkdir -p /tmp/clair-db-volume
           
       # Configura o Docker e monta o volume
       - name: Set up Docker Buildx
