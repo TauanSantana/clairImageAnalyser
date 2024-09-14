@@ -27,7 +27,7 @@ jobs:
 
       - name: Listar diretório
         run: |
-          cd./clairdb
+          cd ./clairdb
           ls
 
       - name: Wait for database
@@ -53,5 +53,5 @@ jobs:
 
       - name: Listar diretório
         run: |
-          cd./clairdb
+          cd ./clairdb
           ls
