@@ -10,7 +10,7 @@ jobs:
       - name: Checkout Actions Repository
         uses: actions/checkout@v4
         
-      - name: Docker logs
+      - name: Set permission
         run: |
           mkdir ${GITHUB_WORKSPACE}/clairdb
           sudo chmod -R 777 ${GITHUB_WORKSPACE}/clairdb
@@ -24,6 +24,10 @@ jobs:
       - name: setup database
         shell: bash
         run: docker run -v ${GITHUB_WORKSPACE}/clairdb:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
+
+      - name: overwrite permission
+        run: |
+          sudo chmod -R 777 ${GITHUB_WORKSPACE}/clairdb
 
       - name: Listar diretório
         run: |
