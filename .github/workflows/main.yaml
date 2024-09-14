@@ -94,6 +94,7 @@ jobs:
       # Executa o clair-scanner (evitando o máximo de bash)
       - name: Run Clair Scanner
         run: |
+          docker pull ubuntu:21.10
           docker run \
             --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
