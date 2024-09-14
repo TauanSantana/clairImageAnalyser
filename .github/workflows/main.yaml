@@ -9,6 +9,11 @@ jobs:
     steps:
       - name: Checkout Actions Repository
         uses: actions/checkout@v4
+        
+      - name: Docker logs
+        run: |
+          mkdir ./clairdb
+          sudo chmod -R 777 ./clairdb
 
       - name: set cache DB
         uses: actions/cache@v3
@@ -16,40 +21,31 @@ jobs:
           path: ./clairdb
           key: clair-db
 
+      - name: setup database
+        shell: bash
+        run: docker run -v ./clairdb:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
+
+      - name: Wait for database
+        run: |
+          sleep 15
+
+      - name: Run Clair
+        shell: bash  
+        run: |  
+          docker run -p 6060:6060 --link db:postgres -d --name clair arminc/clair-local-scan:latest
+
+      - name: Give permission
+        run: chmod +x .github/workflows/clair-check.sh
+
+      - name: Checking
+        shell: bash
+        run: |
+          .github/workflows/clair-check.sh
+
       - name: Docker logs
         run: |
-          mkdir clairdb
+          docker logs clair
 
       - name: Docker logs
         run: |
-          mkdir clairdb/clairdblog
-      
-      - name: Docker logs
-        run: |
-          echo "Oi mundo" > clairdb/clairdblog/texto.txt
-          echo "Oi mundo2" > clairdb/clairdblog/texto2.txt
-          echo "Oi mundo3" > clairdb/clairdblog/texto3.txt
-      # - name: setup database
-      #   shell: bash
-      #   run: docker run -v ./clairdb:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
-
-      # - name: Wait for database
-      #   run: |
-      #     sleep 15
-
-      # - name: Run Clair
-      #   shell: bash  
-      #   run: |  
-      #     docker run -p 6060:6060 --link db:postgres -d --name clair arminc/clair-local-scan:latest
-
-      # - name: Give permission
-      #   run: chmod +x .github/workflows/clair-check.sh
-
-      # - name: Checking
-      #   shell: bash
-      #   run: |
-      #     .github/workflows/clair-check.sh
-
-      # - name: Docker logs
-      #   run: |
-      #     docker logs clair
+          ls ./clairdb
