@@ -67,3 +67,7 @@ jobs:
       - name: Docker logs
         run: |
           docker logs clair
+
+      # Ajusta as permissões do diretório
+      - name: Fix Permissions
+        run: sudo chmod -R 777 /tmp/clair-db-volume
