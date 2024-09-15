@@ -36,7 +36,7 @@ while true; do
 
 
     # Verifica se as últimas 3 iterações tiveram a mesma mensagem de log
-    if [ "$LOG1" == "$LOG2" ] && [ "$LOG2" == "$LOG3" ] && [ -n "$LOG1" ]; then
+    if [ "$LOG1" == "$LOG2" ] && [ "$LOG2" == "$LOG3" ] && [ -n "$LOG1" ] && [ docker logs "${CONTAINER}" 2>&1 | grep "update finished" >&/dev/null ]; then
         echo "As últimas 3 iterações têm a mesma mensagem de log. Interrompendo o loop." >&2
         break
     fi
