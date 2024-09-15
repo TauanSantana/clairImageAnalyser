@@ -1,57 +1,50 @@
-#!/bin/bash
+version: '3.7'
 
-set -ex
+services:
+  db:
+    image: arminc/clair-db:latest
+    volumes:
+      - clair-db-volume:/var/lib/postgresql/clair
+    ports:
+      - "5432:5432"
+    networks:
+      clair-network:
+        aliases:
+          - postgres
 
-CONTAINER="clair"
-COUNTER=1
-MAX=360
-LOG1=""
-LOG2=""
-LOG3=""
+  clair:
+    image: arminc/clair-local-scan:latest
+    depends_on:
+      - db
+    ports:
+      - "6060:6060"
+    networks:
+      clair-network:
+        aliases:
+          - clair
 
-while true; do
-    # Verifica se a atualização foi concluída
-    if docker logs "${CONTAINER}" 2>&1 | grep "update finished" >&/dev/null
-    then
-        echo "ESTOU AQUI 'update finished'." >&2
-        break
-    fi
+  clair-scanner:
+    image: clair-scanner
+    command: ["/bin/sh", "-c", "until curl -s http://clair:6060; do sleep 1; done && ./clair-scanner --ip '${HOSTNAME:-}' --verbose ubuntu:21.10"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9279:9279"
+    depends_on:
+      - clair
+    networks:
+      clair-network:
+        aliases:
+          - clair-scanner
 
-    # Verifica se há algum erro
-    if docker logs "${CONTAINER}" 2>&1 | grep "ERROR" >&/dev/null
-    then
-        echo "ESTOU AQUI 'ERROR'." >&2
-        docker logs -n 25 "${CONTAINER}"
-        echo "Error during update." >&2
-        exit 1
-    fi
+networks:
+  clair-network:
+    driver: bridge
 
-    # Captura o último log
-    CURRENT_LOG=$(docker logs -n 1 "${CONTAINER}")
-
-    # Shift logs: move o log mais recente para frente e armazena o novo log
-    LOG3="$LOG2"
-    LOG2="$LOG1"
-    LOG1="$CURRENT_LOG"
-
-
-    # Verifica se as últimas 3 iterações tiveram a mesma mensagem de log
-    if [ "$LOG1" == "$LOG2" ] && [ "$LOG2" == "$LOG3" ] && [ -n "$LOG1" ] && [ docker logs "${CONTAINER}" 2>&1 | grep "update finished" >&/dev/null ]; then
-        echo "As últimas 3 iterações têm a mesma mensagem de log. Interrompendo o loop." >&2
-        break
-    fi
-
-    docker logs "${CONTAINER}"
-
-    # Aguarda 10 segundos antes da próxima iteração
-    sleep 10
-    ((COUNTER++))
-
-    # Verifica se o contador atingiu o limite
-    if [ "${COUNTER}" -eq "${MAX}" ]; then
-        echo "Took too long."
-        exit 1
-    fi
-done
-
-echo "Processo finalizado com sucesso."
+volumes:
+  clair-db-volume:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: 'C:\Users\tauan\desktop\docker'
