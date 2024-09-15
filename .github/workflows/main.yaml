@@ -105,7 +105,6 @@ jobs:
           docker ps
           echo "IP: ${HOSTNAME:?}"
           curl -L https://github.com/arminc/clair-scanner/releases/download/v12/clair-scanner_linux_amd64 -o clair-scanner && chmod +x ./clair-scanner
-          cd clair-scanner
           clair-scanner /bin/sh -c 'until curl -s http://${HOSTNAME:?}:6060; do sleep 1; done && ./clair-scanner --ip ${HOSTNAME:?} ubuntu:21.10'
 
       
