@@ -50,7 +50,7 @@ jobs:
 
       - name: setup database
         shell: bash
-        run: docker run --network clair-network -v clair-db-volume:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:latest
+        run: docker run --network clair-network -v clair-db-volume:/var/lib/postgresql/clair -p 5432:5432 -d --name db arminc/clair-db:$(date +%Y-%m-%d)
 
       - name: overwrite permission
         run: |
@@ -104,8 +104,13 @@ jobs:
           docker pull ubuntu:21.10
           docker ps
           echo "IP: ${HOSTNAME:?}"
-          curl -L https://github.com/arminc/clair-scanner/releases/download/v12/clair-scanner_linux_amd64 -o clair-scanner && chmod +x ./clair-scanner
-          clair-scanner /bin/sh -c 'until curl -s http://${HOSTNAME:?}:6060; do sleep 1; done && ./clair-scanner --ip ${HOSTNAME:?} ubuntu:21.10'
+          docker run -p 9279:9279 \
+            --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            --network clair-network \
+            --link clair:clair \
+            clair-scanner \
+            /bin/sh -c 'until curl -s http://clair:6060; do sleep 1; done && ./clair-scanner --ip ${HOSTNAME:?} ubuntu:21.10'
 
       
 
